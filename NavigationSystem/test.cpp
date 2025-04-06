@@ -3,4 +3,5 @@ using namespace std;
 
 void fuckyou()
 {
+    cout << "fuckyouasshole" << endl;
 }
