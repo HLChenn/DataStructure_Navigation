@@ -7,9 +7,9 @@
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "${file}",
+                "*.cpp", //用来编译该文件夹下所有的.cpp文件
                 "-o",
-                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                "${fileDirname}\\NavigationMain.exe" //这个用来全部生成一个.exe文件
             ],
             "options": {
                 "cwd": "${fileDirname}"
