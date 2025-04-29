@@ -19,7 +19,7 @@
 
 
 /* * * * * * * * * * Main Test * * * * * * * * * */
-#include "dev/gen_graph.cpp"
+#include "dev/t_gen_graph.cpp"
 
 std::vector<std::string> tests_to_run = {
     // "GenGraphTest.GenMapSpeed",

@@ -9,6 +9,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 # -------------------------- 依赖加载 --------------------------
 find_package(Drogon REQUIRED)
 find_package(GTest REQUIRED)
+find_package(CGAL REQUIRED) 
 file(GLOB SCP_LIST ${PROJECT_SOURCE_DIR}/views/*.csp)
 foreach(cspFile ${SCP_LIST})
     message(STATUS "cspFile: ${cspFile}")
@@ -23,7 +24,6 @@ foreach(cspFile ${SCP_LIST})
     list(APPEND VIEWSRC ${classname}.cc)
 endforeach()
 
-find_package(CGAL REQUIRED) 
 
 # -------------------------- 主程序配置 --------------------------
 add_library(SCUT_MapNavigationLib STATIC
@@ -45,7 +45,6 @@ target_include_directories(SCUT_MapNavigationLib PRIVATE
 enable_testing()
 add_executable(UnitTests
     test/test.cpp
-
 )
 target_link_libraries(UnitTests PRIVATE
     SCUT_MapNavigationLib

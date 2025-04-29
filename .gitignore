@@ -47,4 +47,4 @@
 *.logs
 *.tmp
 *.DS_Store
-UniTests.xml
+**/UnitTests.xml

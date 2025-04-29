@@ -1,3 +1,9 @@
+/**
+ * @file app.cpp
+ * 
+ * @note
+ *      用于启动web服务，最终在此web应用中进行整体功能的汇总
+ */
 #include <drogon/drogon.h>
 #include <filesystem>
 

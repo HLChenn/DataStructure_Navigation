@@ -1,3 +1,10 @@
+/**
+ * @file gen_graph.cpp
+ * 
+ * @note
+ *      用于地图生成算法的具体函数实现，对外部提供Graph类作为接口，详细信息见gen_graph.h
+ *      使用mst结合三角剖分算法的实现平面连通图的生成 
+ */
 #include "gen_graph.h"
 
 typedef CGAL::Exact_predicates_inexact_constructions_kernel K;
@@ -7,7 +14,7 @@ typedef CGAL::Delaunay_triangulation_2<K, Tds> DT;
 typedef DT::Point CPoint;
 
 /**
- * DOT_FILE_DIR: linux下的目录格式
+ * DOT_FILE_DIR: linux下的目录格式，需要指定为自己的全局路由，请自行修改
  * EXTRA_POINT:
  *      用于生成更多的points用于后续截断（1~10万）
  *      对于不同的 POINT_NUM 应该进行调整，否则 .dot 图会不协调（sort的原因）
@@ -15,7 +22,7 @@ typedef DT::Point CPoint;
 const int GRAPH_RANGE = 10000;
 const std::string DOT_FILE_DIR ="/home/kc1zs4/Code/Proj/SCUT/SCUT_MapNavigation/test/dev/dot_visualize/";
 const int EXTRA_POINT = 20;
-const double EXPAND_PROB = 0.5;
+const double EXPAND_PROB = 0.3;
 const int POINT_NUM = 10000;
 
 
