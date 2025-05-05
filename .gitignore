@@ -35,11 +35,11 @@
 # directory
 **/build/
 **/Testing/
-**/logs/
+**/logs/*
+**/uploads/
 **/.vscode/
 **/test_res/
 **/poc/*
-!/poc/
 **/dev/dot_visualize/*
 
 # other

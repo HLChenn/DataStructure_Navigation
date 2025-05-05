@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.10)
-cmake_policy(SET CMP0167 NEW)
 project(SCUT_MapNavigation)
 
 set(CMAKE_CXX_STANDARD 17)
@@ -7,54 +6,41 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 # set(CMAKE_BUILD_TYPE Release)
 # -------------------------- 依赖加载 --------------------------
-find_package(Drogon REQUIRED)
-find_package(GTest REQUIRED)
-find_package(CGAL REQUIRED) 
-file(GLOB SCP_LIST ${PROJECT_SOURCE_DIR}/views/*.csp)
-foreach(cspFile ${SCP_LIST})
-    message(STATUS "cspFile: ${cspFile}")
-    get_filename_component(classname ${cspFile} NAME_WE)
-    message(STATUS "view classname: ${classname}")
-    add_custom_command(
-        OUTPUT ${classname}.h ${classname}.cc
-        COMMAND drogon_ctl create view ${cspFile}
-        DEPENDS ${cspFile}
-        VERBATIM
-    )
-    list(APPEND VIEWSRC ${classname}.cc)
-endforeach()
-
+find_package(Drogon REQUIRED)   # 1.9.10
+find_package(GTest REQUIRED)    # 1.17.0
+find_package(CGAL REQUIRED)     # 6.0.1
+find_package(nlohmann_json REQUIRED) # 3.12.0
 
 # -------------------------- 主程序配置 --------------------------
-add_library(SCUT_MapNavigationLib STATIC
-    src/gen_graph.cpp
-)
 add_executable(SCUT_MapNavigation
     src/app.cpp
-    ${VIEWSRC}
+    src/gen_graph.cpp
+)
+target_include_directories(SCUT_MapNavigation PUBLIC
+    ${PROJECT_SOURCE_DIR}/include
 )
 target_link_libraries(SCUT_MapNavigation PRIVATE
-    SCUT_MapNavigationLib
-    Drogon::Drogon 
-)
-target_include_directories(SCUT_MapNavigationLib PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
+    Drogon::Drogon
+    CGAL::CGAL
+    pthread
+    nlohmann_json::nlohmann_json
 )
 
 # -------------------------- 测试配置 --------------------------
 enable_testing()
 add_executable(UnitTests
     test/test.cpp
+    src/gen_graph.cpp
 )
+target_include_directories(UnitTests PRIVATE
+    ${PROJECT_SOURCE_DIR}/include
+)
+# 此处的 libs 是要测试的 .cpp 文件的 libs，不需要完全和
 target_link_libraries(UnitTests PRIVATE
-    SCUT_MapNavigationLib
     GTest::GTest
     GTest::Main
     pthread
     CGAL::CGAL
-)
-target_include_directories(UnitTests PRIVATE
-    ${PROJECT_SOURCE_DIR}/include
 )
 
 gtest_discover_tests(

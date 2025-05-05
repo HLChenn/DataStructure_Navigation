@@ -13,19 +13,25 @@ typedef CGAL::Triangulation_data_structure_2<Vb> Tds;
 typedef CGAL::Delaunay_triangulation_2<K, Tds> DT;
 typedef DT::Point CPoint;
 
-/**
- * DOT_FILE_DIR: linux下的目录格式，需要指定为自己的全局路由，请自行修改
- * EXTRA_POINT:
- *      用于生成更多的points用于后续截断（1~10万）
- *      对于不同的 POINT_NUM 应该进行调整，否则 .dot 图会不协调（sort的原因）
- */
 const int GRAPH_RANGE = 10000;
 const std::string DOT_FILE_DIR ="/home/kc1zs4/Code/Proj/SCUT/SCUT_MapNavigation/test/dev/dot_visualize/";
 const int EXTRA_POINT = 20;
 const double EXPAND_PROB = 0.3;
-const int POINT_NUM = 10000;
+const int POINT_NUM = 500;
 
+/* * * * * * * * * * Point Impl  * * * * * * * * * */
+bool Point::operator<(const Point& other) const {
+    return std::tie(x, y) < std::tie(other.x, other.y);
+}
 
+bool Point::operator==(const Point& other) const {
+    return std::tie(x, y) == std::tie(other.x, other.y);
+}
+
+/* * * * * * * * * * Edge Impl  * * * * * * * * * */
+bool Edge::operator<(const Edge& other) const {
+    return weight < other.weight;
+}
 
 /* * * * * * * * * * Graph Impl  * * * * * * * * * */
 Graph::Graph(int n = POINT_NUM) : vertices(n) {
@@ -87,6 +93,45 @@ bool Graph::isConnected() {
     }
 
     return visited_count == points.size();
+}
+
+/**
+ * 用于将 Graph 对象的 points 和 adj 邻接表使用 JSON 特定的格式传输到前端进行渲染
+ *      elements: [
+ *         { data: { id: '0' }, position: { x: 200, y: 200 } },
+ *         { data: { id: '1' }, position: { x: 400, y: 200 } },
+ *         { data: { id: '2' }, position: { x: -100, y: 700 } },
+ *         { data: { id: '01', source: '0', target: '1' } },
+ *         { data: { id: '20', source: '2', target: '0' } }
+ *      ]
+ */
+std::string Graph::getJsonG() const {
+    nlohmann::json result;
+    nlohmann::json elements = nlohmann::json::array();
+
+    for (size_t i = 0; i < points.size(); ++i) {
+        nlohmann::json node;
+        node["data"]["id"] = std::to_string(i);
+        node["position"]["x"] = points[i].x;
+        node["position"]["y"] = points[i].y;
+        elements.push_back(node);
+    }
+
+    for (size_t i = 0; i < adj.size(); ++i) {
+        for (size_t j : adj[i]) {
+            if (j > i) {    // 无向边, 确保每一条边只生成一次
+                nlohmann::json edge;
+                edge["data"]["id"] = std::to_string(i) + "-" + std::to_string(j);
+                edge["data"]["source"] = std::to_string(i);
+                edge["data"]["target"] = std::to_string(j);
+                elements.push_back(edge);
+            }
+        }
+    }
+
+    result["elements"] = elements;
+
+    return result.dump(2);
 }
 
 void Graph::buildNetwork(double probability) {
@@ -233,4 +278,25 @@ void Graph::removeDuplicates() {
     } else {
         points.erase(last, points.end());
     }
+}
+
+
+/* * * * * * * * * * Graph::UnionFind Impl  * * * * * * * * * */
+Graph::UnionFind::UnionFind(size_t n): parent(n) {
+    for (size_t i = 0; i < n; ++i)
+        parent[i] = i;
+}
+
+size_t Graph::UnionFind::find(size_t u) {
+    if (parent[u] != u)
+        parent[u] = find(parent[u]);
+    return parent[u];
+}
+
+bool Graph::UnionFind::unite(size_t u, size_t v) {
+    size_t pu = find(u);
+    size_t pv = find(v);
+    if (pu == pv) return false;
+    parent[pu] = pv;
+    return true;
 }
